@@ -92,7 +92,11 @@ jobs:
             echo "::error::gitleaks ha incontrato un errore: la scansione non vale"
             exit 1
           fi
-          scanned=$(grep -o -E '[0-9]+ commits scanned' "$log" | head -1 | cut -d' ' -f1)
+          scanned=$(grep -o -E '[0-9]+ commits scanned' "$log" | head -1 | cut -d' ' -f1 || true)
+          if [ -z "$scanned" ]; then
+            echo "::error::gitleaks non ha stampato il riepilogo dei commit scansionati (exit $status)"
+            exit 1
+          fi
           if git log --no-merges --numstat --format= "$LOG_OPTS" | awk '$1 ~ /^[0-9]+$/ && $1 > 0 {f = 1} END {exit !f}' &&
             [ "${scanned:-0}" -lt 1 ]; then
             echo "::error::gitleaks non ha scansionato nessun commit, ma l'intervallo aggiunge righe"
