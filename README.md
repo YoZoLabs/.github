@@ -17,6 +17,19 @@ GitHub mostra questi file in ogni repository dell'organizzazione che non ne ha u
 
 Per i moduli la sostituzione vale per cartella: un repository con una propria `.github/ISSUE_TEMPLATE/` — anche solo un `config.yml` — non mostra nessuno dei moduli di qui.
 
+## Preset di Renovate
+
+[default.json](./default.json) è il preset comune degli aggiornamenti delle dipendenze; ogni regola porta il proprio perché nel campo `description`. Un repository lo adotta con un `renovate.json` di una riga, a patto che l'app Renovate dell'organizzazione lo includa:
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["local>YoZoLabs/.github"]
+}
+```
+
+Le regole del repository si aggiungono sotto `extends` e vincono su quelle del preset.
+
 ## Licenza
 
 Il contenuto del repository è sotto licenza MIT: vedi [LICENSE](./LICENSE). `CODE_OF_CONDUCT.md` è la traduzione italiana del Contributor Covenant 2.1, sotto CC BY 4.0.

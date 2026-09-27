@@ -15,6 +15,8 @@ Chi legge trova l'italiano, il codice parla inglese.
 | Descrizione e corpo del commit (dopo `tipo(scope):`)       | Tipo e scope del commit (`feat`, `fix`, `docs(M-XXX)`) |
 | Descrizioni delle etichette, testi dei moduli e dei preset | Nomi delle etichette e dei tipi di issue               |
 
+I testi che scrive un bot — titolo e corpo delle PR di Renovate — restano quelli del bot: il controllo sul titolo guarda soltanto il tipo.
+
 ## Issue
 
 ### Tipi

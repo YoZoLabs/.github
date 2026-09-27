@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Preset comune di YoZoLabs: un giro al mese, una PR sola per minor e patch, i major solo su approvazione, le action fissate allo SHA, nessuna fusione automatica.",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    "schedule:monthly",
+    "helpers:pinGitHubActionDigestsToSemver"
+  ],
+  "timezone": "Europe/Rome",
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "automerge": false,
+  "vulnerabilityAlerts": {
+    "schedule": ["at any time"],
+    "dependencyDashboardApproval": false
+  },
+  "packageRules": [
+    {
+      "description": "Un major è una migrazione, non un aggiornamento: la PR si apre solo dopo l'approvazione nella Dependency Dashboard, e si verifica da sola.",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Minor, patch e SHA delle action in una PR sola: ogni PR paga un giro di CI, e più PR sullo stesso lockfile si mettono in conflitto a vicenda.",
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+      "groupName": "non-major dependencies",
+      "groupSlug": "non-major"
+    },
+    {
+      "description": "Un pacchetto npm entra solo dopo tre giorni dalla pubblicazione: è il tempo in cui di solito una versione compromessa viene scoperta e ritirata.",
+      "matchDatasources": ["npm"],
+      "minimumReleaseAge": "3 days"
+    }
+  ]
+}
