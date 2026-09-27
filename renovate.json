@@ -1,4 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>YoZoLabs/.github"]
+  "extends": ["local>YoZoLabs/.github"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "L'immagine di gitleaks in hygiene.yml sta in una variabile d'ambiente, non in un uses:: tag e digest si aggiornano insieme.",
+      "managerFilePatterns": ["/^\\.github/workflows/hygiene\\.yml$/"],
+      "matchStrings": [
+        "IMAGE: (?<depName>ghcr\\.io/gitleaks/gitleaks):(?<currentValue>v[^@\\s]+)@(?<currentDigest>sha256:[0-9a-f]{64})"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Le versioni annotate con un commento «renovate:» sulla riga sopra, come quella di zizmor passata a zizmor-action.",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s+[a-z-]+: (?<currentValue>\\S+)"
+      ],
+      "extractVersionTemplate": "^v?(?<version>.+)$"
+    }
+  ]
 }

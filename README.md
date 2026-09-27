@@ -38,7 +38,7 @@ Due componenti, da referenziare sempre con lo **SHA completo** di un tag e la ve
 gh api repos/YoZoLabs/.github/commits/vX.Y.Z --jq .sha
 ```
 
-Renovate, col preset qui sopra, apre la PR quando esce un tag nuovo.
+Renovate, col preset qui sopra, propone il tag nuovo al primo giro mensile, nella PR unica di minor e patch.
 
 ### Controlli di igiene
 
@@ -47,7 +47,7 @@ Renovate, col preset qui sopra, apre la PR quando esce un tag nuovo.
 | Evento                                  | Titolo della PR | gitleaks                  | actionlint | zizmor |
 | --------------------------------------- | --------------- | ------------------------- | ---------- | ------ |
 | PR aperta, aggiornata o riaperta        | ✓               | ✓ commit fra base e testa | ✓          | ✓      |
-| PR modificata, **cambia il titolo**     | ✓               | ✓ commit fra base e testa | ✓          | ✓      |
+| PR modificata, **cambia titolo o base** | ✓               | ✓ commit fra base e testa | ✓          | ✓      |
 | PR modificata, cambia solo il corpo     | —               | —                         | —          | —      |
 | Push su `main` (solo questo repository) | —               | ✓ commit del push         | ✓          | ✓      |
 
@@ -55,7 +55,7 @@ Renovate, col preset qui sopra, apre la PR quando esce un tag nuovo.
 - **gitleaks**: un intervallo vuoto è un errore, non un verde.
 - **zizmor**: con gli audit che interrogano GitHub; ogni `uses:` deve essere fissato allo SHA.
 
-Quando cambia il titolo i controlli si ripetono tutti, così un titolo corretto non copre un altro rosso. Quando cambia solo il corpo non parte niente, e l'esecuzione in corso non si annulla. Questi due comportamenti stanno nel workflow **chiamante**, che si copia così com'è:
+Quando cambiano il titolo o la base i controlli si ripetono tutti, così un titolo corretto non copre un altro rosso. Quando cambia solo il corpo non parte niente, e l'esecuzione in corso non si annulla. Questi due comportamenti stanno nel workflow **chiamante**, che si copia così com'è:
 
 ```yaml
 name: hygiene
@@ -68,13 +68,13 @@ permissions: {}
 
 # Una modifica al solo corpo della PR ha un gruppo tutto suo: non annulla mai l'esecuzione in corso.
 concurrency:
-  group: ${{ (github.event.action == 'edited' && !github.event.changes.title) && format('noop-{0}', github.run_id) || format('hygiene-{0}', github.ref) }}
+  group: ${{ (github.event.action == 'edited' && !github.event.changes.title && !github.event.changes.base) && format('noop-{0}', github.run_id) || format('hygiene-{0}', github.ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   hygiene:
     # Solo il corpo della PR è cambiato: niente da controllare, zero minuti.
-    if: github.event.action != 'edited' || github.event.changes.title
+    if: github.event.action != 'edited' || github.event.changes.title || github.event.changes.base
     uses: YoZoLabs/.github/.github/workflows/hygiene.yml@<sha> # vX.Y.Z
     permissions:
       contents: read # quelli che chiede il job `checks` di hygiene.yml, non uno di più

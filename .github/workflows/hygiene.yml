@@ -3,8 +3,8 @@ name: hygiene
 # Controlli di igiene comuni, da chiamare con `uses:` fissato allo SHA di un tag. Chi chiama copia
 # dal README i `types` di `pull_request`, l'`if` del job e la `concurrency`: è da lì che una
 # modifica al solo corpo della PR non fa partire niente e non annulla l'esecuzione in corso.
-# Chiamato, gira sempre per intero: anche quando cambia solo il titolo della PR si ripetono tutti i
-# controlli, così un titolo corretto non copre un altro rosso con un verde parziale.
+# Chiamato, gira sempre per intero: anche quando cambiano solo il titolo o la base della PR si
+# ripetono tutti i controlli, così un titolo corretto non copre un altro rosso con un verde parziale.
 on:
   workflow_call:
 
@@ -19,15 +19,17 @@ jobs:
       contents: read # checkout della storia per gitleaks, actionlint e zizmor
       pull-requests: read # il controllo del titolo rilegge la PR via API
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Serve la storia: gitleaks legge i commit dell'intervallo.
           fetch-depth: 0
           persist-credentials: false
 
-      # PR: i commit fra la base e la testa. Push: quelli fra `before` e il nuovo SHA; al primo push
-      # `before` è tutto zeri e si scansiona l'intera storia. Un intervallo vuoto è un errore: un
-      # gitleaks verde su zero commit non dimostra niente.
+      # PR: i commit fra la base e la testa. Push: quelli fra `before` e il nuovo SHA. Con `before`
+      # tutto zeri (branch nuovo) o assente dalla storia (push forzato) si scansiona l'intera storia
+      # del nuovo SHA. Un intervallo vuoto è un errore: un gitleaks verde su zero commit non
+      # dimostra niente.
       - name: Intervallo dei commit
         id: range
         env:
@@ -42,7 +44,18 @@ jobs:
             push) from="$PUSH_BEFORE"; to="$PUSH_AFTER" ;;
             *) echo "::error::evento non gestito: $EVENT"; exit 1 ;;
           esac
+          sha='^[0-9a-f]{40}$'
+          if ! [[ "$to" =~ $sha ]]; then
+            echo "::error::SHA di arrivo non valido: $to"
+            exit 1
+          fi
           if [ -z "$from" ] || [ "$from" = 0000000000000000000000000000000000000000 ]; then
+            opts="$to"
+          elif ! [[ "$from" =~ $sha ]]; then
+            echo "::error::SHA di partenza non valido: $from"
+            exit 1
+          elif ! git cat-file -e "$from^{commit}" 2>/dev/null; then
+            echo "::warning::$from non è nella storia (push forzato?): si scansiona tutta la storia di $to"
             opts="$to"
           else
             opts="$from..$to"
@@ -55,10 +68,37 @@ jobs:
           fi
           echo "log-opts=$opts" >> "$GITHUB_OUTPUT"
 
+      # gitleaks gira nel proprio container, lanciato da questo passo e non come `uses: docker://`.
+      # Da action Docker GitHub imposta HOME=/github/home: il `safe.directory` dell'immagine non si
+      # applica, git rifiuta il workspace (ha un altro proprietario), gitleaks scrive una riga ERR,
+      # scansiona zero commit ed esce 0. Qui `safe.directory` passa per variabili d'ambiente, e il
+      # passo fallisce su ogni riga ERR e su zero commit scansionati quando l'intervallo aggiunge
+      # righe di testo, le sole che gitleaks conta. L'immagine è fissata al digest e non scaricata
+      # come binario con checksum: il digest lo aggiorna Renovate (regola in renovate.json).
       - name: Segreti nei commit (gitleaks)
-        uses: docker://ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f # v8.30.1
-        with:
-          args: git --log-opts=${{ steps.range.outputs.log-opts }} --redact --verbose --exit-code 1 /github/workspace
+        shell: bash
+        env:
+          IMAGE: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          LOG_OPTS: ${{ steps.range.outputs.log-opts }}
+        run: |
+          log="$RUNNER_TEMP/gitleaks.log"
+          set +e
+          docker run --rm -v "$GITHUB_WORKSPACE:/repo" \
+            -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0=/repo \
+            "$IMAGE" git "--log-opts=$LOG_OPTS" --redact --verbose --no-color --exit-code 1 /repo 2>&1 | tee "$log"
+          status=${PIPESTATUS[0]}
+          set -e
+          if grep -q -E '^[0-9]{1,2}:[0-9]{2}(AM|PM) ERR ' "$log"; then
+            echo "::error::gitleaks ha incontrato un errore: la scansione non vale"
+            exit 1
+          fi
+          scanned=$(grep -o -E '[0-9]+ commits scanned' "$log" | head -1 | cut -d' ' -f1)
+          if git log --no-merges --numstat --format= "$LOG_OPTS" | awk '$1 ~ /^[0-9]+$/ && $1 > 0 {f = 1} END {exit !f}' &&
+            [ "${scanned:-0}" -lt 1 ]; then
+            echo "::error::gitleaks non ha scansionato nessun commit, ma l'intervallo aggiunge righe"
+            exit 1
+          fi
+          exit "$status"
 
       # Da qui in poi `!cancelled()`: ogni controllo riporta il proprio esito anche se uno
       # precedente è rosso, così il log dice tutto quello che non va in un giro solo.
@@ -70,16 +110,18 @@ jobs:
         # Solo il tipo: lo scope è facoltativo e la descrizione è libera, così passano anche i
         # titoli di Renovate.
 
+      # Per un'immagine `docker://` la versione è il tag stesso, accanto al digest.
       - name: Sintassi dei workflow (actionlint)
-        if: ${{ !cancelled() }}
-        uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 # v1.7.12
+        if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
+        uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
         with:
           args: -color
 
       - name: Sicurezza dei workflow (zizmor)
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.checkout.outcome == 'success' }}
         uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
         with:
+          # renovate: datasource=github-releases depName=zizmorcore/zizmor
           version: 1.30.1
           # Esito nel log e codice d'uscita; niente SARIF, che non farebbe fallire il job.
           advanced-security: false
