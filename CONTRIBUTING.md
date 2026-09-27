@@ -11,7 +11,7 @@ Chi legge trova l'italiano, il codice parla inglese.
 | In italiano                                                | In inglese                                             |
 | ---------------------------------------------------------- | ------------------------------------------------------ |
 | Documenti e commenti nel codice                            | Identificatori, nomi di file e di cartelle             |
-| Titolo e corpo di issue e PR                               | Nomi di job, di step e di input di workflow e azioni   |
+| Titolo e corpo di issue e PR                               | Nomi di job e di input di workflow e azioni            |
 | Descrizione e corpo del commit (dopo `tipo(scope):`)       | Tipo e scope del commit (`feat`, `fix`, `docs(M-XXX)`) |
 | Descrizioni delle etichette, testi dei moduli e dei preset | Nomi delle etichette e dei tipi di issue               |
 
@@ -82,7 +82,7 @@ Nei repository privati del piano gratuito di GitHub la piattaforma non applica r
 
 - **Una PR = un branch.** Due persone possono lavorare sullo stesso branch. Su `main` non si fa mai push diretto.
 - **Nome del branch**: comincia col tipo del commit — `feat/…`, `fix/…`, `docs/…`, `chore/…`.
-- **Titolo della PR = Conventional Commits**: `tipo(scope): descrizione`, con tipo e scope in inglese e descrizione in italiano. È il titolo che arriva su `main` con qualunque metodo di fusione, e lo verifica il controllo di igiene della CI.
+- **Titolo della PR = Conventional Commits**: `tipo(scope): descrizione`, con tipo e scope in inglese e descrizione in italiano. È il titolo che arriva su `main` con qualunque metodo di fusione, e nei repository che chiamano i controlli di igiene di `.github` lo verifica la CI.
 - **Metodo di fusione**: merge commit o squash, mai rebase. _Create a merge commit_ per una PR fatta di più passi, un commit per passo, così ogni passo resta su `main` come punto di ritorno; _Squash and merge_ per una PR di un solo commit e per quelle dei bot. La fusione con rebase è disattivata: ricreerebbe su `main` i commit con SHA diversi da quelli del branch.
 - **Prima di fondere**: la CI verde deve riguardare il codice che entra. Se `main` è andato avanti dopo l'ultima esecuzione verde, _Update branch_, poi di nuovo verde, poi si fonde.
 
@@ -117,7 +117,7 @@ git merge origin/main   # porta dentro main; risolvi i conflitti e committa
 - **Niente file di piano.** `PLAN.md`, `TODO.md`, `NOTES.md`, `ROADMAP.md` e simili non entrano in un repository: il registro dei lavori sono le issue.
 - **I documenti descrivono il sistema com'è.** Niente avanzamento (✅, caselle da spuntare), niente formule temporali («già», «attualmente», «per ora», «prossimamente», «non ancora»), niente cronaca delle decisioni: la storia sta in git. Si scrive la regola in vigore, al presente.
 - **Diagrammi in mermaid**, che GitHub disegna da sé; ASCII solo per gli alberi di directory.
-- **Link**: fra file si linka il file, mai un `#anchor` — i titoli cambiano e l'ancora muore in silenzio; la sezione si nomina in prosa. Dentro lo stesso file gli anchor sono ammessi. I riferimenti fuori repository si scrivono in testo semplice.
+- **Link**: fra file si linka il file, mai un `#anchor` — i titoli cambiano e l'ancora muore in silenzio; la sezione si nomina in prosa. Dentro lo stesso file gli anchor sono ammessi. Un file fuori dal repository si linka con l'URL completo se è su GitHub, altrimenti si nomina in testo semplice.
 
 ## Sicurezza e comportamento
 

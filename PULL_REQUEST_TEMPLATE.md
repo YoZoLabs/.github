@@ -1,6 +1,6 @@
 ## Sommario
 
-<!-- Che cosa cambia e perché. Il titolo della PR segue Conventional Commits: lo controlla la CI. -->
+<!-- Che cosa cambia e perché. Il titolo della PR segue Conventional Commits. -->
 
 ## Issue
 

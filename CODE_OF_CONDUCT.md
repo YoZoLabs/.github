@@ -73,7 +73,7 @@ Le guide della comunità seguiranno queste linee guida per determinare le azioni
 Questo Codice di Comportamento è adattato dal [Contributor Covenant][homepage], versione 2.1, disponibile all'indirizzo
 [https://www.contributor-covenant.org/version/2/1/code_of_conduct][v2.1].
 
-Testo adattato dalla traduzione italiana ufficiale: inserito l'indirizzo di contatto e corretti due refusi.
+Testo adattato dalla traduzione italiana ufficiale: inserito l'indirizzo di contatto, corretti due refusi e uniformata la formattazione degli elenchi.
 
 Le linee guida all'applicazione sono state ispirate dal [codice di condotta di Mozilla][Mozilla CoC].
 
