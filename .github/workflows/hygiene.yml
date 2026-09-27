@@ -1,0 +1,86 @@
+name: hygiene
+
+# Controlli di igiene comuni, da chiamare con `uses:` fissato allo SHA di un tag. Chi chiama copia
+# dal README i `types` di `pull_request`, l'`if` del job e la `concurrency`: è da lì che una
+# modifica al solo corpo della PR non fa partire niente e non annulla l'esecuzione in corso.
+# Chiamato, gira sempre per intero: anche quando cambia solo il titolo della PR si ripetono tutti i
+# controlli, così un titolo corretto non copre un altro rosso con un verde parziale.
+on:
+  workflow_call:
+
+permissions: {}
+
+jobs:
+  checks:
+    name: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read # checkout della storia per gitleaks, actionlint e zizmor
+      pull-requests: read # il controllo del titolo rilegge la PR via API
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Serve la storia: gitleaks legge i commit dell'intervallo.
+          fetch-depth: 0
+          persist-credentials: false
+
+      # PR: i commit fra la base e la testa. Push: quelli fra `before` e il nuovo SHA; al primo push
+      # `before` è tutto zeri e si scansiona l'intera storia. Un intervallo vuoto è un errore: un
+      # gitleaks verde su zero commit non dimostra niente.
+      - name: Intervallo dei commit
+        id: range
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          case "$EVENT" in
+            pull_request) from="$PR_BASE"; to="$PR_HEAD" ;;
+            push) from="$PUSH_BEFORE"; to="$PUSH_AFTER" ;;
+            *) echo "::error::evento non gestito: $EVENT"; exit 1 ;;
+          esac
+          if [ -z "$from" ] || [ "$from" = 0000000000000000000000000000000000000000 ]; then
+            opts="$to"
+          else
+            opts="$from..$to"
+          fi
+          count=$(git rev-list --count "$opts")
+          echo "Intervallo: $opts ($count commit)"
+          if [ "$count" -lt 1 ]; then
+            echo "::error::intervallo vuoto: nessun commit da scansionare"
+            exit 1
+          fi
+          echo "log-opts=$opts" >> "$GITHUB_OUTPUT"
+
+      - name: Segreti nei commit (gitleaks)
+        uses: docker://ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f # v8.30.1
+        with:
+          args: git --log-opts=${{ steps.range.outputs.log-opts }} --redact --verbose --exit-code 1 /github/workspace
+
+      # Da qui in poi `!cancelled()`: ogni controllo riporta il proprio esito anche se uno
+      # precedente è rosso, così il log dice tutto quello che non va in un giro solo.
+      - name: Titolo della PR (Conventional Commits)
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        # Solo il tipo: lo scope è facoltativo e la descrizione è libera, così passano anche i
+        # titoli di Renovate.
+
+      - name: Sintassi dei workflow (actionlint)
+        if: ${{ !cancelled() }}
+        uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 # v1.7.12
+        with:
+          args: -color
+
+      - name: Sicurezza dei workflow (zizmor)
+        if: ${{ !cancelled() }}
+        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        with:
+          version: 1.30.1
+          # Esito nel log e codice d'uscita; niente SARIF, che non farebbe fallire il job.
+          advanced-security: false
+          online-audits: true

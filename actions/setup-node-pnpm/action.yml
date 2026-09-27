@@ -1,0 +1,46 @@
+name: setup-node-pnpm
+description: >-
+  Installa pnpm (versione da packageManager in package.json) e Node (versione da .nvmrc),
+  ripristina lo store di pnpm dalla cache e installa le dipendenze.
+
+inputs:
+  node-version-file:
+    description: Il file da cui leggere la versione di Node.
+    default: .nvmrc
+  cache-prefix:
+    description: >-
+      Prefisso della chiave di cache dello store di pnpm. Cambiarlo parte da una cache vuota: serve
+      a misurare il caso peggiore o a scartare una cache guasta.
+    default: pnpm-store-v1
+  install:
+    description: "'true' esegue pnpm install --frozen-lockfile; 'false' si ferma al setup."
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    # Nessun `version:`: la fonte unica è `packageManager` in package.json.
+    - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
+
+    - name: Percorso dello store di pnpm
+      id: store
+      shell: bash
+      run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+    # La chiave esatta cambia col lockfile; `restore-keys` riparte dallo store più recente dello
+    # stesso prefisso, e pnpm scarica solo ciò che manca.
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.store.outputs.path }}
+        key: ${{ inputs.cache-prefix }}-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ inputs.cache-prefix }}-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Dipendenze
+      if: inputs.install == 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile
