@@ -1,0 +1,30 @@
+name: ci
+
+# Il repository controlla i propri workflow con il proprio workflow di igiene: stessa chiamata dei
+# repository che lo usano (vedi README, sezione CI riusabile), più il push su main, che qui è
+# l'unico punto in cui un commit arriva senza PR prima che esista il ruleset.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main]
+
+permissions: {}
+
+# Una modifica al solo corpo della PR ha un gruppo tutto suo: non annulla mai l'esecuzione in corso.
+# Sui push non si annulla niente, così ogni commit di main resta controllato.
+concurrency:
+  group: ${{ (github.event.action == 'edited' && !github.event.changes.title) && format('noop-{0}', github.run_id) || format('hygiene-{0}', github.ref) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  hygiene:
+    # Solo il corpo della PR è cambiato: niente da controllare.
+    if: github.event.action != 'edited' || github.event.changes.title
+    # `./` e non la sintassi `$/` che zizmor suggerisce: actionlint 1.7.12 non la riconosce e la
+    # darebbe per errore. Un workflow riusabile dello stesso repository GitHub lo legge dal commit
+    # dell'evento, non dal disco del runner. Si passa a `$/` quando actionlint la supporta.
+    uses: ./.github/workflows/hygiene.yml # zizmor: ignore[self-repository]
+    permissions:
+      contents: read # quelli che chiede il job `checks` di hygiene.yml, non uno di più
+      pull-requests: read # il controllo del titolo rilegge la PR via API

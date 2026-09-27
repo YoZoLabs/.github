@@ -77,8 +77,8 @@ jobs:
     if: github.event.action != 'edited' || github.event.changes.title
     uses: YoZoLabs/.github/.github/workflows/hygiene.yml@<sha> # vX.Y.Z
     permissions:
-      contents: read
-      pull-requests: read
+      contents: read # quelli che chiede il job `checks` di hygiene.yml, non uno di più
+      pull-requests: read # il controllo del titolo rilegge la PR via API
 ```
 
 ### Node e pnpm
