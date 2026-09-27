@@ -1,0 +1,38 @@
+name: Registra un rilievo di sicurezza
+description: Un rilievo interno — difesa in profondità, configurazione, verifica. Non una vulnerabilità da segnalare.
+type: Security
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        **Una vulnerabilità sfruttabile non si apre qui**, e in un repository pubblico mai come
+        issue: segui [SECURITY.md](https://github.com/YoZoLabs/.github/blob/main/SECURITY.md).
+        Questo modulo serve a registrare un rilievo interno, con chi lo chiude e con quale prova.
+  - type: textarea
+    id: finding
+    attributes:
+      label: Rilievo
+      description: >-
+        Che cosa e dove. In un repository di codice almeno un percorso reale in forma `file:riga`;
+        altrove un link o un fatto verificabile.
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Rischio
+      description: Che cosa può succedere, a chi, e quanto è probabile.
+    validations:
+      required: true
+  - type: textarea
+    id: closure
+    attributes:
+      label: Criteri di chiusura
+      description: Chi chiude la issue e con quale prova.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: File toccati e documento da aggiornare
+      description: I file che cambieranno e il documento che possiede l'informazione toccata.
