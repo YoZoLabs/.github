@@ -10,8 +10,10 @@ Closes #
 
 <!-- I comandi lanciati, i test, gli screenshot. -->
 
-## Checklist
+## Documentazione
 
-- [ ] Nessun segreto nel diff
-- [ ] Il documento proprietario è aggiornato, oppure non serve
-- [ ] Un cambiamento incompatibile è descritto nel sommario, oppure non c'è
+<!-- Il documento aggiornato, oppure «nessuno» e perché. -->
+
+## Incompatibilità
+
+<!-- Che cosa si rompe per chi usa questo codice, oppure «nessuna». -->
