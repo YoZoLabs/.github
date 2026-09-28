@@ -12,10 +12,10 @@ GitHub mostra questi file in ogni repository dell'organizzazione che non ne ha u
 | [SECURITY.md](./SECURITY.md)                           | Come si segnala una vulnerabilità                                 |
 | [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)             | Codice di comportamento (Contributor Covenant 2.1)                |
 | [profile/README.md](./profile/README.md)               | La pagina dell'organizzazione su GitHub                           |
-| [ISSUE_TEMPLATE/](./ISSUE_TEMPLATE/)                   | Un modulo per tipo di issue: `Bug`, `Feature`, `Task`, `Security` |
+| [.github/ISSUE_TEMPLATE/](./.github/ISSUE_TEMPLATE/)   | Un modulo per tipo di issue: `Bug`, `Feature`, `Task`, `Security` |
 | [PULL_REQUEST_TEMPLATE.md](./PULL_REQUEST_TEMPLATE.md) | Il corpo di partenza di ogni pull request                         |
 
-Per i moduli la sostituzione vale per cartella: un repository con una propria `.github/ISSUE_TEMPLATE/` — anche solo un `config.yml` — non mostra nessuno dei moduli di qui.
+I moduli stanno per forza in `.github/ISSUE_TEMPLATE/`: GitHub non li cerca altrove, a differenza degli altri file. La sostituzione vale per cartella: un repository con una propria `.github/ISSUE_TEMPLATE/` — anche solo un `config.yml` — non mostra nessuno dei moduli di qui.
 
 ## Preset di Renovate
 
