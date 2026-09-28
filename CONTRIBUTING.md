@@ -47,7 +47,7 @@ Descrive **l'esito osservabile**, non l'attività: `[M-XXX] la ricevuta arriva a
 
 ### Corpo
 
-Il corpo è fatto di sezioni `### Titolo`, nell'ordine della tabella e con i titoli scritti esattamente così: sono le stesse che producono i moduli di [.github/ISSUE_TEMPLATE/](./.github/ISSUE_TEMPLATE/), uno per tipo, quindi una issue scritta a mano o da un agente non si distingue da una nata dal modulo. Le sezioni in **grassetto** sono obbligatorie; le altre si omettono quando non hanno niente da dire.
+Il corpo è fatto di sezioni `### Titolo`, nell'ordine della tabella e con i titoli scritti esattamente così: sono le stesse che producono i moduli di [.github/ISSUE_TEMPLATE/](./.github/ISSUE_TEMPLATE/), uno per tipo. Le sezioni in **grassetto** sono obbligatorie; le altre si omettono quando non hanno niente da dire.
 
 | Tipo         | Sezioni                                                                                                                                         |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -83,7 +83,7 @@ Nei repository privati del piano gratuito di GitHub la piattaforma non applica r
 - **Una PR = un branch.** Due persone possono lavorare sullo stesso branch. Su `main` non si fa mai push diretto.
 - **Nome del branch**: comincia col tipo del commit — `feat/…`, `fix/…`, `docs/…`, `chore/…`.
 - **Titolo della PR = Conventional Commits**: `tipo(scope): descrizione`, con tipo e scope in inglese e descrizione in italiano. È il titolo che arriva su `main` con qualunque metodo di fusione, e nei repository che chiamano i controlli di igiene di `.github` lo verifica la CI.
-- **Metodo di fusione**: merge commit o squash, mai rebase. _Create a merge commit_ per una PR fatta di più passi, un commit per passo, così ogni passo resta su `main` come punto di ritorno; _Squash and merge_ per una PR di un solo commit e per quelle dei bot. La fusione con rebase è disattivata: ricreerebbe su `main` i commit con SHA diversi da quelli del branch.
+- **Metodo di fusione**: merge commit o squash, mai rebase. _Create a merge commit_ per una PR fatta di più passi, così ogni passo resta su `main` come punto di ritorno; _Squash and merge_ per una PR di un solo commit e per quelle dei bot. La fusione con rebase è disattivata: ricreerebbe su `main` i commit con SHA diversi da quelli del branch.
 - **Prima di fondere**: la CI verde deve riguardare il codice che entra. Se `main` è andato avanti dopo l'ultima esecuzione verde, _Update branch_, poi di nuovo verde, poi si fonde.
 
 ### Branch condiviso
