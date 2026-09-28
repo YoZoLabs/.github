@@ -47,7 +47,7 @@ Descrive **l'esito osservabile**, non l'attività: `[M-XXX] la ricevuta arriva a
 
 ### Corpo
 
-Il corpo è fatto di sezioni `### Titolo`, nell'ordine della tabella e con i titoli scritti esattamente così: sono le stesse che producono i moduli di [ISSUE_TEMPLATE/](./ISSUE_TEMPLATE/), uno per tipo, quindi una issue scritta a mano o da un agente non si distingue da una nata dal modulo. Le sezioni in **grassetto** sono obbligatorie; le altre si omettono quando non hanno niente da dire.
+Il corpo è fatto di sezioni `### Titolo`, nell'ordine della tabella e con i titoli scritti esattamente così: sono le stesse che producono i moduli di [.github/ISSUE_TEMPLATE/](./.github/ISSUE_TEMPLATE/), uno per tipo, quindi una issue scritta a mano o da un agente non si distingue da una nata dal modulo. Le sezioni in **grassetto** sono obbligatorie; le altre si omettono quando non hanno niente da dire.
 
 | Tipo         | Sezioni                                                                                                                                         |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
