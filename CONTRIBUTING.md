@@ -59,8 +59,9 @@ Il corpo è fatto di sezioni `### Titolo`, nell'ordine della tabella e con i tit
 
 - **Comportamento osservato**, **Contesto**, **Rilievo**: in un repository di codice almeno un percorso reale in forma `file:riga`; altrove un link o un fatto verificabile. Mai un rilievo generico.
 - **Problema** viene prima di **Soluzione proposta**: una `Feature` dice che cosa non funziona per chi la chiede, poi come risolverlo.
-- **Criteri di accettazione**: verificabili — un comando, un test, uno screenshot. Chi chiude la issue li ha visti passare.
-- **Criteri di chiusura** di una `Security`: chi chiude la issue e con quale prova. Un rilievo senza criterio di chiusura resta aperto per sempre, e il registro diventa un elenco di rischi accettati senza che nessuno l'abbia deciso.
+- **Criteri di accettazione**: un elenco puntato, senza caselle, di criteri verificabili — un comando, un test, uno screenshot. Una casella spuntata dice che qualcuno ha cliccato, non con quale prova: la prova la dà la PR che chiude la issue, criterio per criterio, nella sua sezione «Come è stato verificato», quella del [template della PR](./PULL_REQUEST_TEMPLATE.md); una issue che si chiude senza PR la dà nel commento di chiusura. Per un criterio che non si applica si dà la ragione al posto della prova, e il criterio conta come soddisfatto. Una PR che non soddisfa tutti i criteri nomina la issue con `Refs #n`, non con `Closes #n`, e la issue resta aperta.
+- **Criteri di chiusura** di una `Security`: chi chiude la issue e con quale prova; valgono le regole dei criteri di accettazione. Un rilievo senza criterio di chiusura resta aperto per sempre, e il registro diventa un elenco di rischi accettati senza che nessuno l'abbia deciso.
+- **Criteri di completamento** di una `Task` madre: un elenco puntato, senza caselle. La prova sono le sue sub-issue chiuse, non una PR.
 - **File toccati e documento da aggiornare**: i file che cambieranno e il documento che possiede l'informazione toccata.
 
 ### Blocchi
