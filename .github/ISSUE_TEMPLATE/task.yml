@@ -28,7 +28,9 @@ body:
     id: acceptance
     attributes:
       label: Criteri di accettazione
-      description: Verificabili — un comando, un test, uno screenshot.
+      description: >-
+        Un elenco puntato, senza caselle, di criteri verificabili — un comando, un test, uno
+        screenshot.
     validations:
       required: true
   - type: textarea

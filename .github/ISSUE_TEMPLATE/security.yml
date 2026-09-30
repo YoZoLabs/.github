@@ -28,7 +28,7 @@ body:
     id: closure
     attributes:
       label: Criteri di chiusura
-      description: Chi chiude la issue e con quale prova.
+      description: Chi chiude la issue e con quale prova, in un elenco puntato, senza caselle.
     validations:
       required: true
   - type: textarea
