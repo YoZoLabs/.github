@@ -30,6 +30,8 @@ I moduli stanno per forza in `.github/ISSUE_TEMPLATE/`: GitHub non li cerca altr
 
 Le regole del repository si aggiungono sotto `extends` e vincono su quelle del preset.
 
+Il rinfresco mensile del lockfile lascia scegliere le versioni al package manager, e l'attesa di tre giorni del preset (`minimumReleaseAge`) lì non vale. Un repository con pnpm mette la stessa attesa in `pnpm-workspace.yaml`, `minimumReleaseAge: 4320` in minuti, prima di fondere la sua prima PR di _Lock file maintenance_.
+
 ## CI riusabile
 
 Due componenti, da referenziare sempre con lo **SHA completo** di un tag e la versione in commento — `@<sha> # vX.Y.Z`, mai `@main` né il solo tag, che si può spostare. Lo SHA di un tag:

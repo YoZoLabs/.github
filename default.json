@@ -1,10 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Preset comune di YoZoLabs: un giro al mese, una PR sola per minor e patch, i major solo su approvazione, le action fissate allo SHA, nessuna fusione automatica.",
+  "description": "Preset comune di YoZoLabs: un giro al mese, una PR sola per minor e patch, i major solo su approvazione, le action fissate allo SHA, nessuna fusione automatica. Allo stesso giro si rinfresca il lockfile, perché le dipendenze indirette, dove stanno quasi tutti gli avvisi di sicurezza, Renovate non le aggiorna una per una.",
   "extends": [
     "config:recommended",
     ":semanticCommits",
     "schedule:monthly",
+    ":maintainLockFilesMonthly",
     "helpers:pinGitHubActionDigestsToSemver"
   ],
   "timezone": "Europe/Rome",
