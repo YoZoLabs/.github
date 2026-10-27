@@ -30,7 +30,7 @@ I moduli stanno per forza in `.github/ISSUE_TEMPLATE/`: GitHub non li cerca altr
 
 Le regole del repository si aggiungono sotto `extends` e vincono su quelle del preset.
 
-Il rinfresco mensile del lockfile lascia scegliere le versioni al package manager, e l'attesa di tre giorni del preset (`minimumReleaseAge`) lì non vale. Un repository con pnpm mette la stessa attesa in `pnpm-workspace.yaml`, `minimumReleaseAge: 4320` in minuti, prima di fondere la sua prima PR di _Lock file maintenance_.
+Il rinfresco mensile del lockfile lascia scegliere le versioni al package manager, e l'attesa di tre giorni del preset (`minimumReleaseAge`) lì non vale. Un repository con pnpm (dalla 10.16) mette la stessa attesa in `pnpm-workspace.yaml`, `minimumReleaseAge: 4320` in minuti, prima che Renovate apra la sua prima PR di _Lock file maintenance_. Se la PR è già aperta, va rigenerata dalla casella _rebase/retry_ nel suo corpo prima di fonderla: il suo lockfile è stato risolto senza l'attesa.
 
 ## CI riusabile
 
